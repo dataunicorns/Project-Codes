@@ -1,0 +1,74 @@
+---
+title: "Breast Cancer Dataset Analysis"
+author: "Abhishek Kanaparthi"
+date: "October 15, 2017"
+output:
+  word_document: default
+  html_document: default
+---
+
+The first step in the process is to import the data and the start the pre-processing of the same to jump into the advanced machine learning.
+
+```{r, message=FALSE, warning=FALSE, include=FALSE}
+library(readr)
+BreastCancerData <- read_csv("R:/Data Science Project (DSP)/Data Unicorns/Data Science Project/Projects/Breast Cancer Dataset/breast-cancer-wisconsin-data/data.csv")
+```
+The data has been loaded into a namespace BreastCancerData.
+
+```{r}
+bcd = BreastCancerData #Saving the data into another space to work on it freely
+attach(bcd) # Attaching the dataset for easier usage
+str(bcd) # Checking the structure of the dataset
+
+bcd = bcd[-33] # Removing the last variable which is the dirty variable
+bcd = bcd[-1] #Removing the first variable as it is the ID and is not really important as ID is not used in the Data Analysis
+
+# Encoding the target feature as factor
+bcd$diagnosis = factor(bcd$diagnosis)
+#bcd$diagnosis = factor(bcd$diagnosis, labels = c(0,1))  # In case you need them to be in binary format
+
+```
+
+```{r, message=FALSE, warning=FALSE, include=FALSE}
+
+str(bcd$diagnosis)
+
+summary(bcd$diagnosis) # Checking the summary of the dataset
+```
+
+B is the Benign cancer which does not kill you and M is the for the Malignant Cancer which is dangerous and would kill you!
+
+The next step is to split the dataset randomly and take a training dataset of 75% and Testing Dataset of 25% of the total dataset.
+```{r}
+# Splitting the dataset into the Training set and Test set
+# install.packages('caTools')
+library(caTools)
+set.seed(123)
+split = sample.split(bcd$diagnosis, SplitRatio = 0.75)
+training_set = subset(bcd, split == TRUE)
+test_set = subset(bcd, split == FALSE)
+```
+
+The next step is to run a logistic regression model on the dataset. This is done and the summary of the model has to be generated to check the summary.
+
+```{r}
+# Fitting Logistic Regression to the Training set
+classifier = glm(formula = diagnosis ~ .,family = "binomial",data = training_set)
+summary(classifier)
+```
+
+The next step is to get the optimal cutoff point for the ROC curve instead of the 0.5 threshold.
+
+```{r}
+# Predicting the Test set results
+prob_pred = predict(classifier, type = 'response', newdata = test_set)
+
+# Getting the cutoff for the predictions
+library(InformationValue)
+optcutoff <- optimalCutoff(test_set$diagnosis,prob_pred)
+optcutoff
+
+y_pred = ifelse(prob_pred > optcutoff, 1, 0)
+```
+
+This the next step

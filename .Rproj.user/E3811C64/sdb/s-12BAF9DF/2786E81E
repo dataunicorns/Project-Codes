@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"Breast Cancer Dataset Analysis\"\nauthor: \"Abhishek Kanaparthi\"\ndate: \"October 15, 2017\"\noutput:\n  word_document: default\n  html_document: default\n---\n\nThe first step in the process is to import the data and the start the pre-processing of the same to jump into the advanced machine learning.\n\n```{r, message=FALSE, warning=FALSE, include=FALSE}\nlibrary(readr)\nBreastCancerData <- read_csv(\"R:/Data Science Project (DSP)/Data Unicorns/Data Science Project/Projects/Breast Cancer Dataset/breast-cancer-wisconsin-data/data.csv\")\n```\nThe data has been loaded into a namespace BreastCancerData.\n\n```{r}\nbcd = BreastCancerData #Saving the data into another space to work on it freely\nattach(bcd) # Attaching the dataset for easier usage\nstr(bcd) # Checking the structure of the dataset\n\nbcd = bcd[-33] # Removing the last variable which is the dirty variable\nbcd = bcd[-1] #Removing the first variable as it is the ID and is not really important as ID is not used in the Data Analysis\n\n# Encoding the target feature as factor\nbcd$diagnosis = factor(bcd$diagnosis)\n#bcd$diagnosis = factor(bcd$diagnosis, labels = c(0,1))  # In case you need them to be in binary format\n\n```\n\n```{r, message=FALSE, warning=FALSE, include=FALSE}\n\nstr(bcd$diagnosis)\n\nsummary(bcd$diagnosis) # Checking the summary of the dataset\n```\n\nB is the Benign cancer which does not kill you and M is the for the Malignant Cancer which is dangerous and would kill you!\n\nThe next step is to split the dataset randomly and take a training dataset of 75% and Testing Dataset of 25% of the total dataset.\n```{r}\n# Splitting the dataset into the Training set and Test set\n# install.packages('caTools')\nlibrary(caTools)\nset.seed(123)\nsplit = sample.split(bcd$diagnosis, SplitRatio = 0.75)\ntraining_set = subset(bcd, split == TRUE)\ntest_set = subset(bcd, split == FALSE)\n```\n\nThe next step is to run a logistic regression model on the dataset. This is done and the summary of the model has to be generated to check the summary.\n\n```{r}\n# Fitting Logistic Regression to the Training set\nclassifier = glm(formula = diagnosis ~ .,family = \"binomial\",data = training_set)\nsummary(classifier)\n```\n\nThe next step is to get the optimal cutoff point for the ROC curve instead of the 0.5 threshold.\n\n```{r}\n# Predicting the Test set results\nprob_pred = predict(classifier, type = 'response', newdata = test_set)\n\n# Getting the cutoff for the predictions\nlibrary(InformationValue)\noptcutoff <- optimalCutoff(test_set$diagnosis,prob_pred)\noptcutoff\n\ny_pred = ifelse(prob_pred > optcutoff, 1, 0)\n```\n\nThis the next step\n",
+    "created" : 1508105140675.000,
+    "dirty" : false,
+    "encoding" : "ISO8859-1",
+    "folds" : "",
+    "hash" : "99322152",
+    "id" : "2786E81E",
+    "lastKnownWriteTime" : 1508107900,
+    "last_content_update" : 1508107900424,
+    "path" : "R:/Data Science Project (DSP)/R Programming/Project-Codes/Breast Cancer Data Analysis.Rmd",
+    "project_path" : "Breast Cancer Data Analysis.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
